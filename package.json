@@ -8,7 +8,7 @@
     "init-db": "node server/database/init.js"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "sqlite3": "^5.1.7"
