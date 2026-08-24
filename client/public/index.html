@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Geometry Dash Team - Demon List</title>
+  <style>
+    body {
+      background-color: #0d0f17;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      margin: 0;
+    }
+    h1, h2 {
+      color: #00fff2;
+      text-shadow: 0 0 10px #00fff2;
+    }
+    .card {
+      background: #161b26;
+      border: 2px solid #00fff2;
+      box-shadow: 0 0 15px rgba(0, 255, 242, 0.3);
+      padding: 20px;
+      border-radius: 10px;
+      width: 350px;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 6px 0;
+      background: #0d0f17;
+      border: 1px solid #00fff2;
+      color: white;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #00fff2;
+      border: none;
+      color: #0d0f17;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      border-radius: 5px;
+    }
+    button:hover { background: #00c4bc; }
+    .level-item {
+      background: #0d0f17;
+      border-left: 4px solid #00fff2;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 4px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>GEOMETRY DASH TEAM</h1>
+
+  <!-- Connexion -->
+  <div class="card">
+    <h2>Espace Membre</h2>
+    <input type="text" id="username" placeholder="Pseudo">
+    <input type="password" id="password" placeholder="Mot de passe">
+    <button onclick="register()">S'inscrire</button>
+    <button onclick="login()">Se connecter</button>
+    <p id="auth-msg"></p>
+  </div>
+
+  <!-- Ajouter un niveau -->
+  <div class="card">
+    <h2>Ajouter un Demon</h2>
+    <input type="number" id="lvl-pos" placeholder="Position (#1, #2...)">
+    <input type="text" id="lvl-name" placeholder="Nom du niveau">
+    <input type="text" id="lvl-creator" placeholder="Créateur">
+    <input type="text" id="lvl-video" placeholder="Lien de la vidéo (YouTube)">
+    <button onclick="addLevel()">Ajouter à la liste</button>
+    <p id="lvl-msg"></p>
+  </div>
+
+  <!-- Liste des niveaux -->
+  <div class="card">
+    <h2>Demon List</h2>
+    <div id="levels-container">Chargement...</div>
+  </div>
+
+  <script>
+    async function loadLevels() {
+      const res = await fetch('/api/levels');
+      const levels = await res.json();
+      const container = document.getElementById('levels-container');
+      
+      if (levels.length === 0) {
+        container.innerHTML = "<p>Aucun niveau dans la liste pour l'instant.</p>";
+        return;
+      }
+
+      container.innerHTML = levels.map(l => `
+        <div class="level-item">
+          <strong>#${l.position} - ${l.name}</strong> par ${l.creator}
+          ${l.video_url ? `<br><a href="${l.video_url}" target="_blank" style="color:#00fff2;">Voir le proof</a>` : ''}
+        </div>
+      `).join('');
+    }
+
+    async function addLevel() {
+      const pos = document.getElementById('lvl-pos').value;
+      const name = document.getElementById('lvl-name').value;
+      const creator = document.getElementById('lvl-creator').value;
+      const video = document.getElementById('lvl-video').value;
+
+      const res = await fetch('/api/levels/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position: pos, name, creator, video_url: video })
+      });
+
+      const data = await res.json();
+      document.getElementById('lvl-msg').innerText = data.message || data.error;
+      loadLevels();
+    }
+
+    async function register() {
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+      });
+      const data = await res.json();
+      document.getElementById('auth-msg').innerText = data.message || data.error;
+    }
+
+    async function login() {
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+      });
+      const data = await res.json();
+      document.getElementById('auth-msg').innerText = data.token ? "Connecté !" : data.error;
+    }
+
+    // Charger les niveaux au démarrage
+    loadLevels();
+  </script>
+</body>
+</html>
