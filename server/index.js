@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors()); // Permet à ton frontend de communiquer avec ton backend
 
 // Sert les fichiers de ton site web (ton dossier client)
-app.use(express.static(path.join(__dirname, '../')));
+app.use(express.static(path.join(__dirname, '../client')));
 
 const dataFile = path.join(__dirname, 'data.json');
 
