@@ -1,4 +1,3 @@
-// server/server.js
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -8,8 +7,8 @@ const app = express();
 app.use(express.json());
 app.use(cors()); // Permet à ton frontend de communiquer avec ton backend
 
-// Sert les fichiers de ton site web (ton dossier client)
-app.use(express.static(path.join(__dirname, '../client')));
+// Sert les fichiers statiques situés dans Client/public
+app.use(express.static(path.join(__dirname, '../Client/public')));
 
 const dataFile = path.join(__dirname, 'data.json');
 
@@ -26,36 +25,39 @@ function saveData(data) {
     fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
 }
 
-// --- ROUTES DE L'API ---
+// --- ROUTES DU SITE & DE L'API ---
+
+// Route pour afficher la page principale (index.html)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../Client/public/index.html'));
+});
 
 // 1. Récupérer toutes les données (accessible à tous)
 app.get('/api/data', (req, res) => {
     res.json(readData());
 });
 
-// 2. Vérification ultra sécurisée du mot de passe
+// 2. Vérification du mot de passe admin
 app.post('/api/auth/login', (req, res) => {
-    // process.env.ADMIN_PASSWORD est ta variable secrète sur Render
     const vraiMotDePasse = process.env.ADMIN_PASSWORD || "AdminTest123!"; 
     
     if (req.body.password === vraiMotDePasse) {
-        // En vrai on utiliserait un token complexe (JWT), mais pour commencer un token simple suffit
         res.json({ success: true, token: "mon-token-super-secret" });
     } else {
         res.status(401).json({ success: false });
     }
 });
 
-// Middleware pour vérifier si c'est bien l'admin qui fait la modification
+// Middleware pour vérifier si c'est l'admin
 function verifyAdmin(req, res, next) {
-    if (req.headers.authorization === "mon-token-super-secret") {
+    if (req.headers.authorization === "Bearer mon-token-secret" || req.headers.authorization === "mon-token-super-secret") {
         next();
     } else {
         res.status(403).json({ error: "Accès refusé" });
     }
 }
 
-// 3. Sauvegarder toutes les modifications (accessible QUE aux admins)
+// 3. Sauvegarder les modifications (accessible QUE aux admins)
 app.post('/api/save', verifyAdmin, (req, res) => {
     const newData = req.body;
     saveData(newData);
