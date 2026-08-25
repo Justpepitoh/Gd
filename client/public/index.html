@@ -2,155 +2,614 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Geometry Dash Team - Demon List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geometry Dash Team - Demonlist</title>
   <style>
-    body {
-      background-color: #0d0f17;
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      margin: 0;
+    :root {
+      --bg: #0a0b10;
+      --card-bg: #12141d;
+      --accent: #00f0ff;
+      --accent-glow: rgba(0, 240, 255, 0.4);
+      --danger: #ff0055;
+      --danger-glow: rgba(255, 0, 85, 0.4);
+      --success: #00ff66;
+      --text: #ffffff;
     }
-    h1, h2 {
-      color: #00fff2;
-      text-shadow: 0 0 10px #00fff2;
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+    .bg-squares { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+    .square {
+      position: absolute; width: 30px; height: 30px;
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+      animation: float 10s infinite linear; opacity: 0.3;
     }
-    .card {
-      background: #161b26;
-      border: 2px solid #00fff2;
-      box-shadow: 0 0 15px rgba(0, 255, 242, 0.3);
-      padding: 20px;
+    .square:nth-child(1) { left: 10%; animation-duration: 8s; }
+    .square:nth-child(2) { left: 35%; animation-duration: 12s; animation-delay: 2s; }
+    .square:nth-child(3) { left: 60%; animation-duration: 9s; }
+    .square:nth-child(4) { left: 85%; animation-duration: 14s; animation-delay: 1s; }
+    @keyframes float {
+      0% { transform: translateY(105vh) rotate(0deg); }
+      100% { transform: translateY(-10vh) rotate(360deg); }
+    }
+
+    .glow-box {
+      background: var(--card-bg);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      box-shadow: 0 0 15px var(--accent-glow);
       border-radius: 10px;
-      width: 350px;
-      margin-bottom: 20px;
+      padding: 20px;
     }
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 6px 0;
-      background: #0d0f17;
-      border: 1px solid #00fff2;
-      color: white;
-      border-radius: 5px;
+
+    .hidden { display: none !important; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      display: flex; justify-content: center; align-items: center; z-index: 100;
     }
+    .auth-card { width: 340px; text-align: center; }
+    
+    input, select, textarea {
+      width: 100%; padding: 10px; margin: 6px 0; border-radius: 5px;
+      border: 1px solid #333; background: #050608; color: #fff; outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+
     button {
-      width: 100%;
-      padding: 10px;
-      background: #00fff2;
-      border: none;
-      color: #0d0f17;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-      border-radius: 5px;
+      background: var(--card-bg); color: #fff; border: 1px solid var(--accent);
+      padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s;
     }
-    button:hover { background: #00c4bc; }
-    .level-item {
-      background: #0d0f17;
-      border-left: 4px solid #00fff2;
-      margin: 8px 0;
-      padding: 10px;
-      border-radius: 4px;
-      text-align: left;
-    }
+    button:hover { background: var(--accent); color: #000; box-shadow: 0 0 12px var(--accent-glow); }
+    
+    .btn-danger { border-color: var(--danger); color: var(--text); }
+    .btn-danger:hover { background: var(--danger); color: #fff; box-shadow: 0 0 12px var(--danger-glow); }
+
+    .btn-success { border-color: var(--success); color: var(--text); }
+    .btn-success:hover { background: var(--success); color: #000; box-shadow: 0 0 12px rgba(0,255,102,0.4); }
+
+    header { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    nav button { margin-left: 5px; }
+    main { width: 90%; max-width: 1000px; margin: 0 auto; padding-bottom: 50px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .level-card { position: relative; display: flex; flex-direction: column; justify-content: space-between; }
+    .level-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; background: #222; margin-bottom: 8px; }
+    .mod-badge { background: var(--danger); color: white; font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    th { color: var(--accent); text-transform: uppercase; font-size: 0.85rem; }
+
+    .verifier-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+    .verifier-row input { margin: 0; }
+    .verifier-row button { padding: 8px 12px; }
   </style>
 </head>
 <body>
 
-  <h1>GEOMETRY DASH TEAM</h1>
-
-  <!-- Connexion -->
-  <div class="card">
-    <h2>Espace Membre</h2>
-    <input type="text" id="username" placeholder="Pseudo">
-    <input type="password" id="password" placeholder="Mot de passe">
-    <button onclick="register()">S'inscrire</button>
-    <button onclick="login()">Se connecter</button>
-    <p id="auth-msg"></p>
+  <div class="bg-squares">
+    <div class="square"></div><div class="square"></div>
+    <div class="square"></div><div class="square"></div>
   </div>
 
-  <!-- Ajouter un niveau -->
-  <div class="card">
-    <h2>Ajouter un Demon</h2>
-    <input type="number" id="lvl-pos" placeholder="Position (#1, #2...)">
-    <input type="text" id="lvl-name" placeholder="Nom du niveau">
-    <input type="text" id="lvl-creator" placeholder="Créateur">
-    <input type="text" id="lvl-video" placeholder="Lien de la vidéo (YouTube)">
-    <button onclick="addLevel()">Ajouter à la liste</button>
-    <p id="lvl-msg"></p>
+  <datalist id="player-options"></datalist>
+
+  <!-- POP-UP ADMIN / CONNEXION -->
+  <div id="mod-auth-modal" class="modal-overlay hidden">
+    <div class="auth-card glow-box">
+      <h3>Accès Administrateur</h3>
+      <p style="font-size:0.85rem; margin-top:5px; color:#aaa;">Entrez le mot de passe admin</p>
+      <form onsubmit="checkModPassword(event)" style="margin-top:10px;">
+        <input type="password" id="mod-password-input" placeholder="Mot de passe" required>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button type="submit" class="btn-success" style="flex:1;">Valider</button>
+          <button type="button" class="btn-danger" style="flex:1;" onclick="closeModAuthModal()">Annuler</button>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <!-- Liste des niveaux -->
-  <div class="card">
-    <h2>Demon List</h2>
-    <div id="levels-container">Chargement...</div>
+  <!-- POP-UP ALERTE -->
+  <div id="custom-alert-modal" class="modal-overlay hidden">
+    <div class="auth-card glow-box">
+      <h3 id="alert-title">Notification</h3>
+      <p id="alert-message" style="margin: 15px 0; font-size:0.95rem;"></p>
+      <button onclick="closeCustomAlert()" class="btn-success" style="width:100%;">D'accord</button>
+    </div>
+  </div>
+
+  <!-- POP-UP CONFIRMATION -->
+  <div id="custom-confirm-modal" class="modal-overlay hidden">
+    <div class="auth-card glow-box">
+      <h3>Confirmation</h3>
+      <p id="confirm-message" style="margin: 15px 0; font-size:0.95rem;"></p>
+      <div style="display:flex; gap:10px;">
+        <button id="confirm-btn-yes" class="btn-danger" style="flex:1;">Oui</button>
+        <button onclick="closeCustomConfirm()" style="flex:1;">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL D'ÉDITION DE NIVEAU -->
+  <div id="edit-modal" class="modal-overlay hidden">
+    <div class="auth-card glow-box" style="width: 450px;">
+      <h3>Éditer le Niveau</h3>
+      <form onsubmit="saveLevelEdit(event)">
+        <input type="hidden" id="edit-id">
+        <input type="text" id="edit-title" placeholder="Nom du niveau" required>
+        <input type="number" id="edit-tier" placeholder="Tier (ex: 100 = Top 1)" required>
+        <input type="number" id="edit-points" placeholder="Points" required>
+        
+        <label style="display:block; text-align:left; font-size:0.85rem; margin-top:10px; color:var(--accent);">Vérificateur(s) :</label>
+        <div id="edit-verifiers-container"></div>
+
+        <input type="url" id="edit-yt" placeholder="Lien de la vidéo YouTube" required>
+        <input type="url" id="edit-thumb" placeholder="URL de la miniature">
+        <div style="display:flex; gap:10px; margin-top:15px;">
+          <button type="submit" class="btn-success" style="flex:1;">Sauvegarder</button>
+          <button type="button" class="btn-danger" style="flex:1;" onclick="closeEditModal()">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SITE PRINCIPAL (LIBRE ACCÈS) -->
+  <div id="app">
+    <header class="glow-box">
+      <div>
+        <h2>DEMONLIST</h2>
+        <span id="mod-indicator" class="mod-badge hidden">MODE ADMIN ACTIF</span>
+      </div>
+      <nav>
+        <button onclick="renderLevels('main')">Main (1-75)</button>
+        <button onclick="renderLevels('extended')">Extended (76-150)</button>
+        <button onclick="renderLevels('legacy')">Legacy (151+)</button>
+        <button onclick="renderPlayerList()">Player List</button>
+        <button id="mod-btn" onclick="toggleModState()" style="border-color:var(--danger)">Espace Admin</button>
+      </nav>
+    </header>
+
+    <main id="content">Chargement des données...</main>
   </div>
 
   <script>
-    async function loadLevels() {
-      const res = await fetch('/api/levels');
-      const levels = await res.json();
-      const container = document.getElementById('levels-container');
+    let isMod = false;
+    let adminToken = localStorage.getItem('adminToken') || null;
+    let currentCategory = 'main';
+
+    let db = {
+      levels: [],
+      players: [],
+      logs: []
+    };
+
+    window.onload = async function() {
+      if (adminToken) {
+        isMod = true;
+        document.getElementById('mod-indicator').classList.remove('hidden');
+        document.getElementById('mod-btn').innerText = "Panneau Admin";
+      }
+      await fetchData();
+    };
+
+    async function fetchData() {
+      try {
+        const res = await fetch('/api/data');
+        if (res.ok) {
+          db = await res.json();
+          if (!db.levels) db.levels = [];
+          if (!db.players) db.players = [];
+          if (!db.logs) db.logs = [];
+        }
+      } catch (err) {
+        console.warn("API indisponible, fonctionnement hors-ligne.");
+      }
+      updateDatalist();
+      renderLevels('main');
+    }
+
+    async function saveToServer() {
+      if (!isMod || !adminToken) return;
+      try {
+        await fetch('/api/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminToken}`
+          },
+          body: JSON.stringify(db)
+        });
+      } catch (err) {
+        console.error("Erreur de sauvegarde serveur :", err);
+      }
+    }
+
+    function toggleModState() {
+      if (!isMod) {
+        document.getElementById('mod-password-input').value = '';
+        document.getElementById('mod-auth-modal').classList.remove('hidden');
+      } else {
+        renderModPanelContent();
+      }
+    }
+
+    async function checkModPassword(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('mod-password-input').value;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pwd })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.token) {
+          adminToken = data.token;
+          localStorage.setItem('adminToken', adminToken);
+          isMod = true;
+          
+          closeModAuthModal();
+          document.getElementById('mod-indicator').classList.remove('hidden');
+          document.getElementById('mod-btn').innerText = "Panneau Admin";
+          
+          db.logs.unshift(`[ADMIN] Connexion réussie.`);
+          await saveToServer();
+          renderModPanelContent();
+        } else {
+          customAlert("Mot de passe administrateur incorrect !", "Erreur Accès");
+        }
+      } catch (err) {
+        customAlert("Erreur de connexion au serveur.", "Erreur");
+      }
+    }
+
+    function closeModAuthModal() {
+      document.getElementById('mod-auth-modal').classList.add('hidden');
+    }
+
+    function customAlert(message, title = "Notification") {
+      document.getElementById('alert-title').innerText = title;
+      document.getElementById('alert-message').innerText = message;
+      document.getElementById('custom-alert-modal').classList.remove('hidden');
+    }
+
+    function closeCustomAlert() {
+      document.getElementById('custom-alert-modal').classList.add('hidden');
+    }
+
+    function customConfirm(message, onConfirm) {
+      document.getElementById('confirm-message').innerText = message;
+      const yesBtn = document.getElementById('confirm-btn-yes');
       
-      if (levels.length === 0) {
-        container.innerHTML = "<p>Aucun niveau dans la liste pour l'instant.</p>";
-        return;
+      const handleYes = () => {
+        closeCustomConfirm();
+        onConfirm();
+        yesBtn.removeEventListener('click', handleYes);
+      };
+
+      yesBtn.onclick = handleYes;
+      document.getElementById('custom-confirm-modal').classList.remove('hidden');
+    }
+
+    function closeCustomConfirm() {
+      document.getElementById('custom-confirm-modal').classList.add('hidden');
+    }
+
+    function updateDatalist() {
+      const datalist = document.getElementById('player-options');
+      datalist.innerHTML = db.players.map(p => `<option value="${p.name}">`).join('');
+    }
+
+    function getPoints(lvl) {
+      return (lvl.points !== null && lvl.points !== undefined && lvl.points !== "") ? parseInt(lvl.points) : 0;
+    }
+
+    function updatePositions() {
+      db.levels.sort((a, b) => {
+        if (b.tier !== a.tier) return b.tier - a.tier;
+        return getPoints(b) - getPoints(a);
+      });
+
+      db.levels.forEach((lvl, index) => {
+        lvl.pos = index + 1;
+      });
+    }
+
+    function renderLevels(type) {
+      currentCategory = type;
+      const container = document.getElementById('content');
+      updatePositions();
+
+      let filtered = db.levels.filter(l => {
+        if (type === 'main') return l.pos <= 75;
+        if (type === 'extended') return l.pos > 75 && l.pos <= 150;
+        return l.pos > 150;
+      });
+
+      let html = `<h2 style="margin-bottom:20px; text-transform:uppercase;">${type} List</h2><div class="grid">`;
+      if (filtered.length === 0) html += `<p style="grid-column: 1/-1;">Aucun niveau dans cette catégorie.</p>`;
+
+      filtered.forEach(lvl => {
+        html += `
+          <div class="level-card glow-box">
+            <div>
+              <img src="${lvl.thumb || 'https://picsum.photos/300/150'}" alt="thumbnail">
+              <span class="badge">#${lvl.pos} &bull; Tier ${lvl.tier}</span>
+              <h3>${lvl.title}</h3>
+              <p style="font-size:0.9rem; margin: 4px 0;">Vérifié par : <strong style="color:var(--accent);">${lvl.verifier || 'Inconnu'}</strong></p>
+              <p style="font-size:0.9rem;">Points : <strong>${getPoints(lvl).toLocaleString()} pts</strong></p>
+              <a href="${lvl.yt}" target="_blank" style="color:var(--accent); text-decoration:none; display:inline-block; margin-top:10px;">Regarder la vidéo</a>
+            </div>
+            ${isMod ? `
+              <div style="display:flex; gap:5px; margin-top:15px;">
+                <button style="flex:1;" onclick="openEditModal(${lvl.id})">Éditer</button>
+                <button class="btn-danger" style="flex:1;" onclick="deleteLevel(${lvl.id})">Supprimer</button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    function renderPlayerList() {
+      currentCategory = 'players';
+      const container = document.getElementById('content');
+      db.players.sort((a, b) => b.points - a.points);
+
+      let levelOptions = db.levels.map(l => `<option value="${l.id}">${l.title} (Tier ${l.tier} - ${getPoints(l)} pts)</option>`).join('');
+
+      let html = `
+        <h2 style="margin-bottom:20px; text-transform:uppercase;">Classement des Joueurs</h2>
+        ${isMod ? `
+        <div class="glow-box" style="margin-bottom:25px;">
+          <h3>Enregistrer la victoire d'un Joueur</h3>
+          ${db.levels.length === 0 ? '<p style="margin-top:10px; color:#888;">Ajoutez d\'abord des niveaux pour enregistrer des victoires.</p>' : `
+            <form onsubmit="recordDemonCompletion(event)" style="margin-top:15px; display:grid; grid-template-columns: 1fr 1fr auto; gap:10px; align-items:center;">
+              <input type="text" list="player-options" id="rec-player" placeholder="Pseudo" required>
+              <select id="rec-level" required>
+                <option value="">-- Sélectionner le Demon --</option>
+                ${levelOptions}
+              </select>
+              <button type="submit" class="btn-success">+ Enregistrer</button>
+            </form>
+          `}
+        </div>` : ''}
+
+        <div class="glow-box">
+          <table>
+            <thead>
+              <tr>
+                <th>Rang</th>
+                <th>Joueur</th>
+                <th>Démons Vaincus</th>
+                <th>Points Totaux</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      if (db.players.length === 0) {
+        html += `<tr><td colspan="4" style="text-align:center;">Aucun joueur enregistré.</td></tr>`;
+      } else {
+        db.players.forEach((player, index) => {
+          html += `
+            <tr>
+              <td><strong>#${index + 1}</strong></td>
+              <td><strong>${player.name}</strong></td>
+              <td>${player.demons}</td>
+              <td style="color:var(--accent);"><strong>${player.points.toLocaleString()} pts</strong></td>
+            </tr>
+          `;
+        });
       }
 
-      container.innerHTML = levels.map(l => `
-        <div class="level-item">
-          <strong>#${l.position} - ${l.name}</strong> par ${l.creator}
-          ${l.video_url ? `<br><a href="${l.video_url}" target="_blank" style="color:#00fff2;">Voir le proof</a>` : ''}
+      html += `
+            </tbody>
+          </table>
         </div>
-      `).join('');
+      `;
+      container.innerHTML = html;
     }
 
-    async function addLevel() {
-      const pos = document.getElementById('lvl-pos').value;
-      const name = document.getElementById('lvl-name').value;
-      const creator = document.getElementById('lvl-creator').value;
-      const video = document.getElementById('lvl-video').value;
+    function awardLevelToPlayer(playerName, level) {
+      const cleanName = playerName.trim();
+      if (!cleanName) return false;
 
-      const res = await fetch('/api/levels/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ position: pos, name, creator, video_url: video })
+      let player = db.players.find(p => p.name.toLowerCase() === cleanName.toLowerCase());
+
+      if (!player) {
+        player = { id: Date.now() + Math.floor(Math.random() * 1000), name: cleanName, points: 0, demons: 0, completedLevels: [] };
+        db.players.push(player);
+      }
+
+      if (!player.completedLevels) player.completedLevels = [];
+      if (player.completedLevels.includes(level.id)) return false;
+
+      player.completedLevels.push(level.id);
+      player.points += getPoints(level);
+      player.demons += 1;
+
+      updateDatalist();
+      return true;
+    }
+
+    async function recordDemonCompletion(e) {
+      e.preventDefault();
+      const playerName = document.getElementById('rec-player').value.trim();
+      const levelId = parseInt(document.getElementById('rec-level').value);
+      const level = db.levels.find(l => l.id === levelId);
+
+      if (!level || !playerName) return;
+
+      if (awardLevelToPlayer(playerName, level)) {
+        db.logs.unshift(`[RECORD] ${playerName} a réussi '${level.title}' (+${getPoints(level)} pts).`);
+        await saveToServer();
+        customAlert(`Victoire de ${playerName} enregistrée !`, "Succès");
+        renderPlayerList();
+      } else {
+        customAlert(`Le joueur "${playerName}" a déjà ce niveau dans son palmarès.`, "Erreur");
+      }
+    }
+
+    function addVerifierRow(containerId, initialValue = '') {
+      const container = document.getElementById(containerId);
+      const row = document.createElement('div');
+      row.className = 'verifier-row';
+      const isFirst = container.children.length === 0;
+
+      row.innerHTML = `
+        <input type="text" list="player-options" class="verifier-input" value="${initialValue}" placeholder="Pseudo" required>
+        ${isFirst 
+          ? `<button type="button" class="btn-success" onclick="addVerifierRow('${containerId}')">+</button>` 
+          : `<button type="button" class="btn-danger" onclick="this.parentElement.remove()">-</button>`
+        }
+      `;
+      container.appendChild(row);
+    }
+
+    function getVerifiersFromContainer(containerId) {
+      const inputs = document.querySelectorAll(`#${containerId} .verifier-input`);
+      const names = [];
+      inputs.forEach(input => {
+        const val = input.value.trim();
+        if (val && !names.includes(val)) names.push(val);
       });
-
-      const data = await res.json();
-      document.getElementById('lvl-msg').innerText = data.message || data.error;
-      loadLevels();
+      return names;
     }
 
-    async function register() {
-      const u = document.getElementById('username').value;
-      const p = document.getElementById('password').value;
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: u, password: p })
+    async function addLevel(e) {
+      e.preventDefault();
+      const title = document.getElementById('lvl-title').value;
+      const tier = parseInt(document.getElementById('lvl-tier').value);
+      const ptsVal = document.getElementById('lvl-pts').value;
+      const pts = ptsVal !== '' ? parseInt(ptsVal) : 0;
+      const yt = document.getElementById('lvl-yt').value;
+      const thumb = document.getElementById('lvl-thumb').value || 'https://picsum.photos/300/150';
+
+      const verifiers = getVerifiersFromContainer('add-verifiers-container');
+      const verifierString = verifiers.join(', ');
+
+      const newLevel = { id: Date.now(), title, tier, points: pts, verifier: verifierString, yt, thumb };
+      db.levels.push(newLevel);
+
+      verifiers.forEach(vName => awardLevelToPlayer(vName, newLevel));
+      db.logs.unshift(`[ADMIN] Niveau '${title}' (Tier ${tier}) ajouté.`);
+
+      await saveToServer();
+      customAlert(`Niveau "${title}" ajouté avec succès !`, "Succès");
+      renderModPanelContent();
+    }
+
+    function openEditModal(id) {
+      const lvl = db.levels.find(l => l.id === id);
+      if (!lvl) return;
+
+      document.getElementById('edit-id').value = lvl.id;
+      document.getElementById('edit-title').value = lvl.title;
+      document.getElementById('edit-tier').value = lvl.tier;
+      document.getElementById('edit-points').value = lvl.points !== null ? lvl.points : '';
+      document.getElementById('edit-yt').value = lvl.yt;
+      document.getElementById('edit-thumb').value = lvl.thumb || '';
+
+      const editContainer = document.getElementById('edit-verifiers-container');
+      editContainer.innerHTML = '';
+      
+      const currentVerifiers = lvl.verifier ? lvl.verifier.split(', ') : [''];
+      currentVerifiers.forEach(v => addVerifierRow('edit-verifiers-container', v));
+
+      document.getElementById('edit-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.add('hidden');
+    }
+
+    async function saveLevelEdit(e) {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('edit-id').value);
+      const lvl = db.levels.find(l => l.id === id);
+      if (!lvl) return;
+
+      const verifiers = getVerifiersFromContainer('edit-verifiers-container');
+
+      lvl.title = document.getElementById('edit-title').value;
+      lvl.tier = parseInt(document.getElementById('edit-tier').value);
+      const ptsVal = document.getElementById('edit-points').value;
+      lvl.points = ptsVal !== '' ? parseInt(ptsVal) : 0;
+      lvl.verifier = verifiers.join(', ');
+      lvl.yt = document.getElementById('edit-yt').value;
+      lvl.thumb = document.getElementById('edit-thumb').value || 'https://picsum.photos/300/150';
+
+      verifiers.forEach(vName => awardLevelToPlayer(vName, lvl));
+      db.logs.unshift(`[ADMIN] Niveau '${lvl.title}' modifié.`);
+
+      await saveToServer();
+      closeEditModal();
+      renderLevels(currentCategory);
+    }
+
+    function deleteLevel(id) {
+      customConfirm("Voulez-vous supprimer ce niveau ?", async () => {
+        const index = db.levels.findIndex(l => l.id === id);
+        if (index !== -1) {
+          const deleted = db.levels.splice(index, 1)[0];
+          const pts = getPoints(deleted);
+
+          db.players.forEach(player => {
+            if (player.completedLevels && player.completedLevels.includes(deleted.id)) {
+              player.completedLevels = player.completedLevels.filter(lvlId => lvlId !== deleted.id);
+              player.points = Math.max(0, player.points - pts);
+              player.demons = Math.max(0, player.demons - 1);
+            }
+          });
+
+          db.logs.unshift(`[ADMIN] Niveau '${deleted.title}' supprimé.`);
+          await saveToServer();
+          renderLevels(currentCategory);
+        }
       });
-      const data = await res.json();
-      document.getElementById('auth-msg').innerText = data.message || data.error;
     }
 
-    async function login() {
-      const u = document.getElementById('username').value;
-      const p = document.getElementById('password').value;
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: u, password: p })
-      });
-      const data = await res.json();
-      document.getElementById('auth-msg').innerText = data.token ? "Connecté !" : data.error;
-    }
+    function renderModPanelContent() {
+      document.getElementById('content').innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div class="glow-box">
+            <h3>Panneau Administration - Ajouter un Niveau</h3>
+            <form onsubmit="addLevel(event)" style="margin-top:15px;">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <input type="text" id="lvl-title" placeholder="Nom du niveau" required>
+                <input type="number" id="lvl-tier" placeholder="Tier (ex: 100 pour Top 1)" required>
+                <input type="number" id="lvl-pts" placeholder="Points" required>
+                <input type="url" id="lvl-yt" placeholder="Lien vidéo YouTube" required>
+                <input type="url" id="lvl-thumb" placeholder="URL miniature (optionnel)" style="grid-column: span 2;">
+              </div>
+              
+              <div style="margin-top:10px;">
+                <label style="display:block; font-size:0.85rem; margin-bottom:5px; color:var(--accent);">Vérificateur(s) :</label>
+                <div id="add-verifiers-container"></div>
+              </div>
 
-    // Charger les niveaux au démarrage
-    loadLevels();
+              <button type="submit" style="width:100%; margin-top:15px; background:var(--accent); color:#000; font-weight:bold;">+ Ajouter le Niveau</button>
+            </form>
+          </div>
+
+          <div class="glow-box">
+            <h3>Logs Serveur en Direct</h3>
+            <div style="background:#000; padding:15px; border-radius:5px; font-family:monospace; color:#00ff66; margin-top:10px; max-height:200px; overflow-y:auto;">
+              ${db.logs.map(log => `<div>${log}</div>`).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+
+      addVerifierRow('add-verifiers-container');
+    }
   </script>
 </body>
 </html>
