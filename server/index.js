@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors()); // Permet à ton frontend de communiquer avec ton backend
 
 // Sert les fichiers de ton site web (ton dossier client)
-app.use(express.static(path.join(__dirname, '../client')));
+app.use(express.static(path.join(__dirname, '../')));
 
 const dataFile = path.join(__dirname, 'data.json');
 
@@ -34,7 +34,7 @@ app.get('/api/data', (req, res) => {
 });
 
 // 2. Vérification ultra sécurisée du mot de passe
-app.post('/api/auth', (req, res) => {
+app.post('/api/auth/login', (req, res) => {
     // process.env.ADMIN_PASSWORD est ta variable secrète sur Render
     const vraiMotDePasse = process.env.ADMIN_PASSWORD || "AdminTest123!"; 
     
